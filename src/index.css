@@ -1,0 +1,288 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Cabinet Grotesk (variable, 100–900) — the site's only typeface ---- */
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("/fonts/CabinetGrotesk-Variable.woff2") format("woff2-variations"),
+    url("/fonts/CabinetGrotesk-Variable.woff") format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f6f6f4;
+  color: #101012;
+  font-family: "Cabinet Grotesk", system-ui, sans-serif;
+}
+
+/* Lenis smooth-scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+::selection {
+  background: #101012;
+  color: #f6f6f4;
+}
+
+/* visible keyboard focus (accessibility) */
+:focus-visible {
+  outline: 2px solid #ff2e2e;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+a,
+button {
+  cursor: pointer;
+}
+
+/* ---- Glass surface (frosted, premium) ---- */
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+    0 10px 30px rgba(16, 16, 18, 0.1);
+  color: #101012;
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.25s, background 0.25s;
+}
+.glass:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 16px 40px rgba(16, 16, 18, 0.16);
+}
+/* dark glass — for use over imagery / dark surfaces */
+.glass-dark {
+  background: rgba(18, 18, 22, 0.35);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.25s, background 0.25s;
+}
+.glass-dark:hover {
+  transform: translateY(-2px);
+  background: rgba(28, 28, 34, 0.5);
+}
+
+/* ---- Custom cursor (desktop only) ---- */
+@media (hover: hover) and (pointer: fine) {
+  body.cursor-on,
+  body.cursor-on * {
+    cursor: none !important;
+  }
+}
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 9999px;
+  will-change: transform;
+  mix-blend-mode: normal;
+}
+.cursor-dot {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background: #101012;
+}
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(16, 16, 18, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Hide the page scrollbar (no white gutter on the right) while keeping the page
+   fully scrollable. Scoped to the document so inner scrollers (e.g. the AV
+   Assist chat) keep their own scrollbar. */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge/IE */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome/Safari */
+}
+
+/* logo carousel marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .marquee-track { animation: none !important; }
+}
+
+/* STAR AV ASSIST — panel + typing animations */
+@keyframes avassist-panel-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes avassist-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ---- Card-fan carousel (projects showcase) ----
+   Cards are absolutely centred with margin:auto; motion is applied purely via
+   GSAP transforms so translate/rotate/scale never fight the centring. */
+.fan-layout {
+  position: relative;
+  width: 100%;
+  height: 16rem;
+}
+.fan-card {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 10.5rem;
+  height: 14rem;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: #0e0e12;
+  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  outline: none;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+.fan-card:focus-visible {
+  box-shadow: 0 0 0 3px #ff2e2e, 0 18px 40px -12px rgba(0, 0, 0, 0.45);
+}
+@media (min-width: 480px) { .fan-layout { height: 19rem; } .fan-card { width: 12.5rem; height: 16.5rem; } }
+@media (min-width: 640px) { .fan-layout { height: 21rem; } .fan-card { width: 13.5rem; height: 18rem; } }
+@media (min-width: 768px) { .fan-layout { height: 25rem; } .fan-card { width: 15.5rem; height: 20.5rem; } }
+@media (min-width: 1024px) { .fan-layout { height: 29rem; } .fan-card { width: 17rem; height: 22.5rem; } }
+/* Phones / small tablets only (<=640px): shrink the fan cards so all 7 fit on
+   screen without overcrowding. Placed after the min-width rules so it wins on
+   overlap; never matches desktop (>=641px), which stays exactly as above. */
+@media (max-width: 640px) {
+  .fan-layout { height: 12.5rem; }
+  .fan-card { width: 6.75rem; height: 9rem; border-radius: 0.7rem; }
+}
+
+/* ---- Drift wall (projects) — a tilted 3D wall of tiles that drift/loop ---- */
+@keyframes driftwall-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes driftwall-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+.dw-root { position: absolute; inset: 0; overflow: hidden; }
+.dw-plane { position: absolute; top: 50%; left: 50%; display: flex; transform-style: preserve-3d; will-change: transform; }
+.dw-col { display: flex; flex-direction: column; transform-style: preserve-3d; }
+.dw-track { display: flex; flex-direction: column; transform-style: preserve-3d; will-change: transform; backface-visibility: hidden; }
+.dw-root[data-pause="true"]:hover .dw-track { animation-play-state: paused; }
+/* stop animating (no compositing work) when the wall isn't on screen */
+.dw-root[data-inview="false"] .dw-track { animation-play-state: paused; }
+/* Hover pop is GPU-only: the tile animates transform (translateZ pop), and the
+   glow/ring is a separate layer whose OPACITY fades in — no box-shadow/filter
+   transitions, so hovering never triggers a repaint of the moving track. */
+.dw-tile {
+  position: relative; flex: none; cursor: pointer; background: #0e0e12; outline: none;
+  transform-style: preserve-3d; backface-visibility: hidden;
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.dw-crop { position: absolute; inset: 0; overflow: hidden; display: block; background: #0e0e12; }
+.dw-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* base drop-shadow (static — not transitioned) + hover glow ring, both on the
+   overlay so only its opacity changes on hover (compositor-friendly) */
+.dw-glow {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0; will-change: opacity;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.55), 0 22px 44px -12px rgba(0, 0, 0, 0.7), 0 0 34px 3px rgba(255, 46, 46, 0.55);
+}
+.dw-tile::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.6);
+}
+/* hover: pop out of the wall (transform only) + fade the glow in */
+.dw-tile:hover { transform: translateZ(80px) scale(1.06); z-index: 60; }
+.dw-tile:hover .dw-glow { opacity: 1; }
+.dw-tile:focus-visible .dw-glow { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .dw-track { animation: none !important; } }
+
+/* ---- Contact — ambient dark-red wave (decorative, non-reactive) ----
+   A wide ribbon that drifts slowly sideways so it "swooshes" through the
+   background. Purely cosmetic: pointer-events none, transform-only animation. */
+@keyframes contact-wave-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.contact-wave {
+  position: absolute;
+  left: 0;
+  width: 200%;
+  height: auto;
+  pointer-events: none;
+  will-change: transform;
+  animation: contact-wave-drift 34s linear infinite;
+}
+.contact-wave.is-slow { animation-duration: 52s; animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .contact-wave { animation: none !important; }
+}
+
+/* utility: fluid display type */
+.text-hero {
+  font-size: clamp(2.6rem, 9vw, 8.5rem);
+  line-height: 0.95;
+}
+.text-display {
+  font-size: clamp(2rem, 5.5vw, 4.75rem);
+  line-height: 1.02;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

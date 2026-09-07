@@ -1,0 +1,37 @@
+# STAR AVS — Hostinger (Apache/LiteSpeed) config
+
+# --- Security: block direct web access to secrets & AI grounding ---
+# (chat.php still reads these from the filesystem — this only blocks HTTP access)
+<FilesMatch "(^\.env|\.env$)">
+  Require all denied
+</FilesMatch>
+<Files "ai-context.json">
+  Require all denied
+</Files>
+
+# Don't serve source/config if they ever get uploaded
+<FilesMatch "\.(?:log|sh|mjs|map)$">
+  Require all denied
+</FilesMatch>
+
+# --- SPA fallback (harmless for this single-page site; keeps deep links working) ---
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # let real files (assets, api/chat.php) and directories serve normally
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  # everything else -> index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# --- Long-cache the hashed build assets ---
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+</IfModule>

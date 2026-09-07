@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.local
+.env.*.local
+.DS_Store
+*.log
+.vercel
+
+# Large unused source video (not rendered by the live app) — exceeds GitHub's
+# 100MB per-file limit, so it must stay out of the repository.
+public/videos/showcase-04.mp4

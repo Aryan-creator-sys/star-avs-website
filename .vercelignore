@@ -1,0 +1,9 @@
+# Keep the Vercel deployment lean and correct.
+# Apache-only file (ignored by Vercel anyway):
+public/.htaccess
+# Hostinger PHP proxy — must NOT be served as a static file on Vercel, where the
+# /api/chat serverless function (via the vercel.json rewrite) handles chat:
+public/api/chat.php
+# Large unused source video (not rendered by the live app; exceeds GitHub's
+# 100MB limit and is excluded from git as well):
+public/videos/showcase-04.mp4
