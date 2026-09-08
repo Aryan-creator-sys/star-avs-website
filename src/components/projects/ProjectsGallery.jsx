@@ -10,7 +10,8 @@ import { TOP_HOME_THEATRE } from "../../data/projects";
  * prev/next through the 12. Real photos only; no fabricated reviews/specs.
  */
 export default function ProjectsGallery() {
-  const projects = TOP_HOME_THEATRE;
+  // Only the top 7 installations — shown all at once in the fan (no pagination).
+  const projects = TOP_HOME_THEATRE.slice(0, 7);
   const cards = projects.map((p) => ({ imgUrl: p.thumb, alt: p.alt }));
   const [openIndex, setOpenIndex] = useState(-1);
 
@@ -22,7 +23,7 @@ export default function ProjectsGallery() {
   const current = openIndex >= 0 ? projects[openIndex] : null;
 
   return (
-    <section id="work" className="relative overflow-hidden bg-[#f6f6f4] px-6 pt-[1vh] pb-[3vh]">
+    <section id="work" className="relative overflow-hidden bg-[#f6f6f4] px-6 pt-[1vh] pb-24 md:pb-[14vh]">
       <div className="mx-auto max-w-[1280px]">
         <Reveal className="text-center">
           <p className="mb-3 text-[0.72rem] font-medium uppercase tracking-[0.35em] text-black/55">Projects</p>

@@ -226,8 +226,12 @@ export default function HexSurface({ className = "" }) {
     const hit = new THREE.Vector3();
     const target = new THREE.Vector3(0, 0, -9999);
     let targetStrength = 0;
+    // only render / raycast while the hero is actually on screen — scrolling the
+    // rest of the page then costs zero WebGL work (visually identical when shown)
+    let visible = true;
 
     function pointer(e) {
+      if (!visible) return;
       const r = renderer.domElement.getBoundingClientRect();
       const cx = e.clientX, cy = e.clientY;
       const inside = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
@@ -247,6 +251,7 @@ export default function HexSurface({ className = "" }) {
     function tick() {
       raf = requestAnimationFrame(tick);
       const dt = Math.min(clock.getDelta(), 0.05);
+      if (!visible) return; // hero off-screen: skip uniform updates + GPU render
       uniforms.uTime.value += dt * CONFIG.timeScale;
       // inertia: ease cursor position + strength toward targets
       const m = uniforms.uMouse.value;
@@ -269,10 +274,18 @@ export default function HexSurface({ className = "" }) {
     });
     ro.observe(el);
 
+    // ---- pause when off-screen ----
+    const io = new IntersectionObserver(
+      ([e]) => { visible = e.isIntersecting; },
+      { threshold: 0 }
+    );
+    io.observe(el);
+
     // ---- cleanup ----
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       window.removeEventListener("pointermove", pointer);
       window.removeEventListener("pointerdown", pointer);
       geo.dispose();

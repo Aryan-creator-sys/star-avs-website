@@ -221,31 +221,21 @@ body::-webkit-scrollbar {
 .dw-root[data-pause="true"]:hover .dw-track { animation-play-state: paused; }
 /* stop animating (no compositing work) when the wall isn't on screen */
 .dw-root[data-inview="false"] .dw-track { animation-play-state: paused; }
-/* Hover pop is GPU-only: the tile animates transform (translateZ pop), and the
-   glow/ring is a separate layer whose OPACITY fades in — no box-shadow/filter
-   transitions, so hovering never triggers a repaint of the moving track. */
+/* freeze the drift while the lightbox covers the wall (invisible; frees the GPU
+   so the click-to-expand animation stays smooth) */
+.dw-root[data-frozen="true"] .dw-track { animation-play-state: paused; }
+/* No hover interaction: tiles just sit in the wall and drift. The only affordance
+   is clicking to open the lightbox. Tiles are flat (cacheable) for smooth drift;
+   a static base drop-shadow keeps their look; no transitions, no hover effects. */
 .dw-tile {
-  position: relative; flex: none; cursor: pointer; background: #0e0e12; outline: none;
-  transform-style: preserve-3d; backface-visibility: hidden;
-  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+  position: relative; flex: none; cursor: pointer; background: #0e0e12;
 }
 .dw-crop { position: absolute; inset: 0; overflow: hidden; display: block; background: #0e0e12; }
 .dw-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* base drop-shadow (static — not transitioned) + hover glow ring, both on the
-   overlay so only its opacity changes on hover (compositor-friendly) */
-.dw-glow {
-  position: absolute; inset: 0; pointer-events: none; opacity: 0; will-change: opacity;
-  transition: opacity 0.3s ease;
-  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.55), 0 22px 44px -12px rgba(0, 0, 0, 0.7), 0 0 34px 3px rgba(255, 46, 46, 0.55);
-}
 .dw-tile::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.6);
 }
-/* hover: pop out of the wall (transform only) + fade the glow in */
-.dw-tile:hover { transform: translateZ(80px) scale(1.06); z-index: 60; }
-.dw-tile:hover .dw-glow { opacity: 1; }
-.dw-tile:focus-visible .dw-glow { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .dw-track { animation: none !important; } }
 
 /* ---- Contact — ambient dark-red wave (decorative, non-reactive) ----

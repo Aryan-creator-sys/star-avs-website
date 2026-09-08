@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 
 /**
  * DriftWall — a tilted 3D wall of image tiles that drift/loop continuously,
@@ -6,9 +6,17 @@ import { useEffect, useMemo, useRef } from "react";
  * project (JSX, no external dep) with the same prop API as the react-bits
  * component. Every column is filled (items repeat) so there are no gaps, and
  * tiles are clickable via onItemClick(index) to expand in a lightbox.
+ *
+ * Wrapped in React.memo so opening/paging the lightbox (which changes the
+ * parent's state) never re-renders the whole wall. `frozen` pauses the drift
+ * while the lightbox covers it — invisible, but frees the GPU so the expand
+ * animation is smooth.
  */
-export default function DriftWall({
+function DriftWall({
   items,
+  frozen = false,
+  preloadReady = true,
+  scale = 1.35,
   columns = 5,
   tileWidth = 200,
   tileHeight = 132,
@@ -47,7 +55,9 @@ export default function DriftWall({
 
   // each tile's height matches its photo aspect (fixed column width) → no crop
   const hOf = (it) => (it && it.ar ? Math.round(tileWidth / it.ar) : tileHeight);
-  const FILL_PX = 2300; // repeat items until a column overflows → no gaps (tall enough when zoomed out)
+  const FILL_PX = 1100; // fill each column with a safe margin for a seamless loop
+  // (was over-filled ~4x; fewer tiles = far less continuous GPU compositing,
+  // which is the safe way to lighten the wall without changing how it looks)
   const cols = useMemo(() => {
     const buckets = Array.from({ length: columns }, () => []);
     items.forEach((it, i) => buckets[i % columns].push(it));
@@ -68,12 +78,12 @@ export default function DriftWall({
   }, [items, columns, tileWidth, tileHeight, gap]);
 
   return (
-    <div ref={rootRef} className="dw-root" data-inview="true" data-pause={pauseOnHover ? "true" : "false"} style={{ perspective: `${perspective}px` }}>
+    <div ref={rootRef} className="dw-root" data-inview="true" data-pause={pauseOnHover ? "true" : "false"} data-frozen={frozen ? "true" : "false"} style={{ perspective: `${perspective}px` }}>
       <div
         className="dw-plane"
         style={{
           gap: `${gap}px`,
-          transform: `translate(-50%, calc(-50% - ${lift}px)) rotateX(${tilt}deg) rotateZ(${turn}deg) rotateY(${roll}deg) scale(1.35)`,
+          transform: `translate(-50%, calc(-50% - ${lift}px)) rotateX(${tilt}deg) rotateZ(${turn}deg) rotateY(${roll}deg) scale(${scale})`,
         }}
       >
         {cols.map((colItems, ci) => {
@@ -107,11 +117,17 @@ export default function DriftWall({
                     style={{ width: tileWidth, height: hOf(it), borderRadius: radius }}
                   >
                     <span className="dw-crop" style={{ borderRadius: radius }}>
-                      <img src={it.image} alt={it.title || ""} loading="lazy" decoding="async" draggable="false"
+                      {/* Approach-gated eager load: src is unset until the wall
+                          nears the viewport (preloadReady), so nothing is fetched
+                          at initial page load. Once armed the REAL element loads
+                          eagerly and decodes at its render size ahead of entry, so
+                          the tile is paint-ready before it drifts in — no pop-in.
+                          The element itself never remounts (stable key), so once
+                          loaded it stays ready for every loop pass. */}
+                      <img src={preloadReady ? it.image : undefined} alt={it.title || ""}
+                        loading="eager" decoding="async" draggable="false"
                         style={grayscale ? { filter: "grayscale(1)" } : undefined} />
                     </span>
-                    {/* glow/ring/sheen — only its opacity animates on hover (GPU, no repaint) */}
-                    <span className="dw-glow" style={{ borderRadius: radius }} aria-hidden="true" />
                   </button>
                 ))}
               </div>
@@ -132,3 +148,5 @@ export default function DriftWall({
     </div>
   );
 }
+
+export default memo(DriftWall);

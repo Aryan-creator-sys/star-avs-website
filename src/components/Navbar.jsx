@@ -8,32 +8,50 @@ import { NAV, COMPANY, ASSETS } from "../data/site";
  *    WITH a frosted white bar. Logo → dark, controls → light glass.
  */
 export default function Navbar() {
-  const [y, setY] = useState(0);
-  const [dir, setDir] = useState("up");
   const [open, setOpen] = useState(false);
+  // Only the derived booleans drive the render — computing them in a
+  // rAF-throttled handler and setting state ONLY when one flips means the navbar
+  // re-renders a handful of times per scroll instead of on every scroll frame.
+  const [ui, setUi] = useState({ over: true, headerHidden: false, showButtons: false, collapsed: false });
   const lastY = useRef(0);
+  const dirRef = useRef("up");
+  const rafRef = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => {
+    const apply = () => {
+      rafRef.current = 0;
       const cy = window.scrollY;
+      const vh = Math.max(window.innerHeight || 0, 600);
       if (Math.abs(cy - lastY.current) > 4) {
-        setDir(cy > lastY.current ? "down" : "up");
+        dirRef.current = cy > lastY.current ? "down" : "up";
         lastY.current = cy;
       }
-      setY(cy);
+      const atHero = cy < vh * 0.9;
+      const next = {
+        over: atHero,
+        headerHidden: !atHero && dirRef.current === "down",
+        showButtons: atHero ? cy > vh * 0.5 : true,
+        collapsed: cy > vh * 0.4,
+      };
+      setUi((prev) =>
+        prev.over === next.over &&
+        prev.headerHidden === next.headerHidden &&
+        prev.showButtons === next.showButtons &&
+        prev.collapsed === next.collapsed
+          ? prev
+          : next
+      );
     };
-    onScroll();
+    const onScroll = () => { if (!rafRef.current) rafRef.current = requestAnimationFrame(apply); };
+    apply();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
-  const vh = Math.max((typeof window !== "undefined" ? window.innerHeight : 800) || 0, 600);
-  const atHero = y < vh * 0.9;
-  const over = atHero; // dark hero styling
-  const headerHidden = !atHero && dir === "down";
-  const whiteBar = !atHero && dir === "up";
-  const showButtons = atHero ? y > vh * 0.5 : true;
-  const collapsed = y > vh * 0.4; // logo -> just the symbol once scrolling begins
+  const { over, headerHidden, showButtons, collapsed } = ui;
 
   const toHome = (e) => {
     e.preventDefault();
@@ -65,10 +83,14 @@ export default function Navbar() {
               symbol mark as the user scrolls */}
           <a href="#hero" onClick={toHome} aria-label={`${COMPANY.short} — home`}
             className={`relative flex items-center justify-center transition-all duration-300 ${over ? "" : "glass rounded-full px-5 py-2"}`}>
-            {/* full lockup — defines the footprint */}
+            {/* full lockup — defines the footprint. High priority + eager so the
+                logo paints on first load (esp. on phones over the network). */}
             <img
               src={ASSETS.logo}
               alt={COMPANY.name}
+              fetchpriority="high"
+              loading="eager"
+              decoding="async"
               className={`h-9 w-auto transition-opacity duration-500 md:h-11 ${collapsed ? "opacity-0" : "opacity-100"}`}
               style={over ? logoFilter : undefined}
             />

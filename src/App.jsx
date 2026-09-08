@@ -1,7 +1,7 @@
 import useSmoothScroll from "./lib/useSmoothScroll";
 import ScrollProgress from "./components/ScrollProgress";
 import CustomCursor from "./components/CustomCursor";
-import AVAssistant from "./components/avassist/AVAssistant";
+import HelpButton from "./components/HelpButton";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -31,9 +31,8 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
-      {/* STAR AV ASSIST — floating concierge (also provides WhatsApp + Call,
-          reusing the site's real numbers; replaces the old contact dock) */}
-      <AVAssistant />
+      {/* Floating Help button — expands to WhatsApp + Call (no chatbot) */}
+      <HelpButton />
     </div>
   );
 }

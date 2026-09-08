@@ -61,9 +61,9 @@ function initials(name) {
     .toUpperCase();
 }
 
-function Stars({ center }) {
+function Stars({ small }) {
   return (
-    <div className="mb-3 flex gap-0.5 text-[0.8rem] text-[#ff2e2e]" aria-label="5 out of 5 stars">
+    <div className={`flex gap-0.5 text-[#ff2e2e] ${small ? "mb-1.5 text-[0.6rem]" : "mb-3 text-[0.8rem]"}`} aria-label="5 out of 5 stars">
       {Array.from({ length: 5 }).map((_, i) => (
         <span key={i}>★</span>
       ))}
@@ -73,9 +73,12 @@ function Stars({ center }) {
 
 function TestimonialCard({ position, testimonial, handleMove, cardSize, onExpand }) {
   const isCenter = position === 0;
+  // Small (phone) cards need proportionally smaller notch, padding and type so
+  // the text isn't crowded. Desktop (cardSize 365) keeps the original look.
+  const small = cardSize < 260;
+  const notch = small ? 22 : 50;
+  const pad = small ? 14 : 32; // px inset for content + footer
   const onClick = () => {
-    // side cards navigate (unchanged everywhere); the centre card opens the full
-    // review — but ONLY on phones (<640), so desktop behaviour is untouched.
     if (isCenter) {
       if (window.innerWidth < 640) onExpand(testimonial);
     } else {
@@ -86,7 +89,7 @@ function TestimonialCard({ position, testimonial, handleMove, cardSize, onExpand
     <div
       onClick={onClick}
       className={[
-        "absolute left-1/2 top-1/2 flex cursor-pointer flex-col border p-5 transition-all duration-500 ease-cine sm:p-8",
+        "absolute left-1/2 top-1/2 flex cursor-pointer flex-col border transition-all duration-500 ease-cine",
         isCenter
           ? "z-10 border-[#101012] bg-[#101012] text-white"
           : "z-0 border-black/10 bg-white text-[#101012] hover:border-[#ff2e2e]/50",
@@ -94,8 +97,8 @@ function TestimonialCard({ position, testimonial, handleMove, cardSize, onExpand
       style={{
         width: cardSize,
         height: cardSize,
-        clipPath:
-          "polygon(50px 0%, calc(100% - 50px) 0%, 100% 50px, 100% 100%, calc(100% - 50px) 100%, 50px 100%, 0 100%, 0 0)",
+        padding: pad,
+        clipPath: `polygon(${notch}px 0%, calc(100% - ${notch}px) 0%, 100% ${notch}px, 100% 100%, calc(100% - ${notch}px) 100%, ${notch}px 100%, 0 100%, 0 0)`,
         transform: `
           translate(-50%, -50%)
           translateX(${(cardSize / 1.5) * position}px)
@@ -109,36 +112,30 @@ function TestimonialCard({ position, testimonial, handleMove, cardSize, onExpand
       {/* diagonal accent by the top-right notch (from the reference) */}
       <span
         className={`absolute block origin-top-right rotate-45 ${isCenter ? "bg-white/20" : "bg-black/10"}`}
-        style={{ right: -2, top: 48, width: SQRT_5000, height: 2 }}
+        style={{ right: -2, top: notch - 2, width: SQRT_5000, height: 2 }}
       />
 
       {/* monogram avatar (no photos available) */}
       <div
-        className={`mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[0.8rem] font-semibold sm:mb-4 sm:h-12 sm:w-12 sm:text-[0.9rem] ${
-          isCenter ? "bg-white/10 text-white" : "bg-[#101012]/[0.06] text-[#101012]"
-        }`}
+        className={`flex shrink-0 items-center justify-center rounded-full font-semibold ${
+          small ? "mb-2 h-8 w-8 text-[0.66rem]" : "mb-4 h-12 w-12 text-[0.9rem]"
+        } ${isCenter ? "bg-white/10 text-white" : "bg-[#101012]/[0.06] text-[#101012]"}`}
         style={{ boxShadow: isCenter ? "3px 3px 0px rgba(255,46,46,0.4)" : "3px 3px 0px rgba(16,16,18,0.08)" }}
       >
         {initials(testimonial.by)}
       </div>
 
-      <Stars center={isCenter} />
+      <Stars small={small} />
 
-      <h3 className={`line-clamp-2 overflow-hidden pr-1 text-[0.8rem] font-medium leading-snug sm:line-clamp-6 sm:text-[1rem] ${isCenter ? "text-white" : "text-[#101012]"}`}>
+      <h3 className={`overflow-hidden pr-1 font-medium leading-snug ${small ? "line-clamp-2 text-[0.66rem]" : "line-clamp-6 text-[1rem]"} ${isCenter ? "text-white" : "text-[#101012]"}`}>
         “{testimonial.text}”
       </h3>
 
-      <p className={`absolute bottom-5 left-5 right-5 mt-2 text-[0.72rem] sm:bottom-8 sm:left-8 sm:right-8 sm:text-[0.8rem] ${isCenter ? "text-white/70" : "text-black/50"}`}>
+      <p className={`absolute mt-2 ${small ? "text-[0.58rem] leading-tight" : "text-[0.8rem]"} ${isCenter ? "text-white/70" : "text-black/50"}`}
+        style={{ left: pad, right: pad, bottom: pad }}>
         <span className="font-semibold not-italic">{testimonial.by}</span>
         {testimonial.role ? <span className="italic"> — {testimonial.role}</span> : null}
       </p>
-
-      {/* phone-only affordance: the centre card is tappable to read the full review */}
-      {isCenter && (
-        <span className="absolute right-4 top-4 rounded-full bg-white/15 px-2 py-0.5 text-[0.6rem] font-medium uppercase tracking-wide text-white/80 sm:hidden">
-          Tap to read
-        </span>
-      )}
     </div>
   );
 }
@@ -173,7 +170,9 @@ export default function Testimonials() {
     // deck peeks through at once (4-6 visible, matching the desktop feel).
     const update = () => {
       const w = window.innerWidth;
-      setCardSize(w >= 640 ? 365 : w >= 380 ? 205 : 180);
+      // desktop unchanged (365); phones smaller so ~4 cards show, but with enough
+      // room that the text isn't crowded (paired with tighter card internals)
+      setCardSize(w >= 640 ? 365 : w >= 400 ? 172 : 158);
     };
     update();
     window.addEventListener("resize", update);
@@ -211,10 +210,12 @@ export default function Testimonials() {
         </div>
       </Reveal>
 
-      {/* staggered deck */}
-      <div className="relative mt-[7vh] w-full overflow-hidden" style={{ height: cardSize + 180 }}>
+      {/* staggered deck — tighter top gap + less dead space below on phones */}
+      <div className="relative mt-[3vh] w-full overflow-hidden sm:mt-[7vh]"
+        style={{ height: cardSize + (cardSize < 300 ? 96 : 180) }}>
         {list.map((t, index) => {
-          const position = list.length % 2 ? index - (list.length + 1) / 2 : index - list.length / 2;
+          // symmetric spread around the centre card (e.g. 7 cards -> -3..+3)
+          const position = index - Math.floor(list.length / 2);
           return (
             <TestimonialCard key={t.tempId} testimonial={t} handleMove={handleMove} position={position} cardSize={cardSize} onExpand={setExpanded} />
           );

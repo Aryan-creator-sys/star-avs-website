@@ -14,9 +14,9 @@ export const ASSETS = {
   projectorFront: "/images/projector-front.png", // front-facing (hero parallax)
   heroVideo: "/videos/hero-video.mp4", // replace with /public/videos/hero-video.mp4
   // projected still shown before the video "comes alive" in the hero
-  projectedStill: "/images/installation-01.png",
+  projectedStill: "/images/installation-01.jpg",
   installations: [
-    { src: "/images/installation-01.png", title: "Living-room cinema", tag: "Home Cinema" },
+    { src: "/images/installation-01.jpg", title: "Living-room cinema", tag: "Home Cinema" },
     { src: "/images/installation-04.png", title: "Dedicated theatre, tower array", tag: "Home Cinema" },
     { src: "/images/installation-10.png", title: "Stone feature-wall cinema", tag: "Home Cinema" },
     { src: "/images/installation-02.png", title: "Corporate boardroom AV", tag: "Commercial AV" },
