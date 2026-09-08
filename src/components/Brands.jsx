@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import Reveal from "./Reveal";
+import usePauseOffscreen from "../lib/usePauseOffscreen";
 import { BRANDS } from "../data/site";
 
 /**
@@ -8,9 +10,11 @@ import { BRANDS } from "../data/site";
  */
 export default function Brands() {
   const row = [...BRANDS, ...BRANDS]; // duplicated for a seamless loop
+  const sectionRef = useRef(null);
+  usePauseOffscreen(sectionRef);
 
   return (
-    <section id="brands" className="relative bg-[#f6f6f4] px-6 pt-[4vh] pb-[1vh] sm:pb-[4vh]">
+    <section ref={sectionRef} id="brands" data-offscreen="false" className="relative bg-[#f6f6f4] px-6 pt-[4vh] pb-[1vh] sm:pb-[4vh]">
       <div className="mx-auto max-w-[1280px]">
         <Reveal>
           <p className="mb-10 text-center text-[0.72rem] font-medium uppercase tracking-[0.35em] text-black/55">

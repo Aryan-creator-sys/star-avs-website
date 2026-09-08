@@ -155,6 +155,9 @@ body::-webkit-scrollbar {
 .marquee:hover .marquee-track {
   animation-play-state: paused;
 }
+/* pause decorative continuous animations while their section is off-screen
+   (resumes seamlessly — no visual change) */
+[data-offscreen="true"] .marquee-track { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -255,6 +258,7 @@ body::-webkit-scrollbar {
   animation: contact-wave-drift 34s linear infinite;
 }
 .contact-wave.is-slow { animation-duration: 52s; animation-direction: reverse; }
+[data-offscreen="true"] .contact-wave { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .contact-wave { animation: none !important; }
 }

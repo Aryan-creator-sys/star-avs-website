@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import Reveal from "./Reveal";
+import usePauseOffscreen from "../lib/usePauseOffscreen";
 
 // Extra installations for the moving slideshow (grayscale, half the row-2 height).
 const SLIDESHOW = [
@@ -15,10 +17,12 @@ const SLIDESHOW = [
  * carries a vertical rule. Grayscale matches the white/black theme.
  */
 export default function Values() {
+  const sectionRef = useRef(null);
+  usePauseOffscreen(sectionRef);
   return (
-    <section id="approach" className="relative overflow-hidden bg-[#f6f6f4] pt-[2vh] pb-[8vh] sm:py-[8vh]">
+    <section ref={sectionRef} id="approach" data-offscreen="false" className="relative overflow-hidden bg-[#f6f6f4] pt-[2vh] pb-[4vh] sm:py-[8vh]">
       {/* ROW 1 — text left, image bleeds right */}
-      <div className="grid items-center gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-12">
+      <div className="grid items-center gap-5 md:grid-cols-[0.85fr_1.15fr] md:gap-12">
         <Reveal className="order-2 px-6 md:order-1 md:pl-12 lg:pl-20">
           <div className="flex gap-6">
             <div className="w-px shrink-0 self-stretch bg-black/25" />
@@ -68,7 +72,7 @@ export default function Values() {
       </div>
 
       {/* moving slideshow of more installations — ~half the row-2 image height */}
-      <div className="marquee marquee-mask mt-[6vh] overflow-hidden">
+      <div className="marquee marquee-mask mt-[3vh] overflow-hidden sm:mt-[6vh]">
         <div className="marquee-track gap-3">
           {[...SLIDESHOW, ...SLIDESHOW].map((src, i) => (
             <img key={i} src={src} alt="" aria-hidden="true" loading="lazy"

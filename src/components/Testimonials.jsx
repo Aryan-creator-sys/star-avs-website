@@ -102,7 +102,7 @@ function TestimonialCard({ position, testimonial, handleMove, cardSize, onExpand
         transform: `
           translate(-50%, -50%)
           translateX(${(cardSize / 1.5) * position}px)
-          translateY(${isCenter ? -65 : position % 2 ? 15 : -15}px)
+          translateY(${isCenter ? -Math.round(cardSize * 0.178) : position % 2 ? cardSize * 0.041 : -(cardSize * 0.041)}px)
           rotate(${isCenter ? 0 : position % 2 ? 2.5 : -2.5}deg)
         `,
         boxShadow: isCenter ? "0px 8px 0px 4px rgba(255,46,46,0.35)" : "0px 0px 0px 0px transparent",
@@ -193,7 +193,7 @@ export default function Testimonials() {
   }, [expanded]);
 
   return (
-    <section id="testimonials" className="relative bg-[#f6f6f4] px-6 pt-[5vh] pb-[2vh]">
+    <section id="testimonials" className="relative bg-[#f6f6f4] px-6 pt-[2vh] pb-[2vh] sm:pt-[5vh]">
       <Reveal className="mx-auto max-w-[900px] text-center">
         <p className="mb-4 text-[0.72rem] font-medium uppercase tracking-[0.35em] text-black/55">Testimonials</p>
         <h2 className="font-display text-[clamp(1.9rem,4vw,3rem)] font-light leading-[1.1] tracking-tight text-[#101012]">
@@ -211,8 +211,8 @@ export default function Testimonials() {
       </Reveal>
 
       {/* staggered deck — tighter top gap + less dead space below on phones */}
-      <div className="relative mt-[3vh] w-full overflow-hidden sm:mt-[7vh]"
-        style={{ height: cardSize + (cardSize < 300 ? 96 : 180) }}>
+      <div className="relative mt-[1vh] w-full overflow-hidden sm:mt-[7vh]"
+        style={{ height: cardSize + (cardSize < 300 ? 80 : 180) }}>
         {list.map((t, index) => {
           // symmetric spread around the centre card (e.g. 7 cards -> -3..+3)
           const position = index - Math.floor(list.length / 2);

@@ -1,6 +1,5 @@
 import useSmoothScroll from "./lib/useSmoothScroll";
 import ScrollProgress from "./components/ScrollProgress";
-import CustomCursor from "./components/CustomCursor";
 import HelpButton from "./components/HelpButton";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -17,7 +16,6 @@ export default function App() {
   useSmoothScroll();
   return (
     <div className="relative overflow-x-clip bg-[#f6f6f4]">
-      <CustomCursor />
       <ScrollProgress />
       <Navbar />
       <main>

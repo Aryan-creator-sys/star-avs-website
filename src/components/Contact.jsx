@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "../lib/gsap";
+import usePauseOffscreen from "../lib/usePauseOffscreen";
 import { COMPANY } from "../data/site";
 
 /**
@@ -8,6 +9,7 @@ import { COMPANY } from "../data/site";
  */
 export default function Contact() {
   const ref = useRef(null);
+  usePauseOffscreen(ref);
   const [errs, setErrs] = useState({});
   const [sent, setSent] = useState(false);
 
@@ -57,7 +59,7 @@ export default function Contact() {
     "w-full rounded-xl border bg-white/[0.05] px-4 py-3 text-white placeholder-white/35 outline-none transition-colors focus:border-white/50 focus:bg-white/[0.07]";
 
   return (
-    <section id="contact" ref={ref} className="relative overflow-hidden bg-[#09090f] px-6 py-[16vh] text-white">
+    <section id="contact" ref={ref} data-offscreen="false" className="relative overflow-hidden bg-[#09090f] px-6 py-[16vh] text-white">
       {/* matte-black ambience — monochrome glow (matches the About section) */}
       <div className="pointer-events-none absolute inset-0"
         style={{ background: "radial-gradient(60% 50% at 18% 22%, rgba(255,255,255,0.05), transparent 60%), radial-gradient(50% 45% at 88% 82%, rgba(255,255,255,0.04), transparent 60%)" }} />

@@ -105,6 +105,10 @@ export const TOP_HOME_THEATRE = TOP12_IDS
   .map((id) => PROJECTS.find((p) => p.id === id))
   .filter(Boolean);
 
+// The 7 installations shown in the fan carousel. The DriftWall uses everything
+// EXCEPT these so the fan and wall never show the same photo.
+export const FAN_IDS = TOP12_IDS.slice(0, 7);
+
 // The next 10 installations (after the fan's 12) for the circular gallery.
 const NEXT10_IDS = ["p02", "p03", "p06", "p08", "p12", "p21", "p26", "p13", "p07", "p09"];
 export const NEXT_10 = NEXT10_IDS

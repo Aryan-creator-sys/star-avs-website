@@ -1,22 +1,36 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DriftWall from "./DriftWall";
 import ProjectLightbox from "./ProjectLightbox";
-import { PROJECTS } from "../../data/projects";
+import { PROJECTS, FAN_IDS } from "../../data/projects";
 
 /**
- * A drift-wall showcase of all installations, sitting right above Contact.
+ * A drift-wall showcase of the installations NOT shown in the fan carousel — so
+ * the wall and the fan never repeat the same photo. All photos are the real
+ * Refined-folder installation images (pNN, small `-w` variants for the wall).
  * Every tile is filled (images repeat, no gaps); clicking a tile expands it in
- * the shared lightbox with prev/next through all projects.
+ * the shared lightbox with prev/next through the wall's set.
  */
 export default function DriftWallSection() {
+  // wall set = every project except the ones already used in the fan
+  const wallProjects = useMemo(() => {
+    const list = PROJECTS.filter((p) => !FAN_IDS.includes(p.id));
+    // keep the US Open / tennis projection (p17) in a centre column: the wall
+    // fills columns round-robin (index % 6), so index 3 → a centre column.
+    const idx = list.findIndex((p) => p.id === "p17");
+    if (idx > -1 && idx !== 3) {
+      const [item] = list.splice(idx, 1);
+      list.splice(3, 0, item);
+    }
+    return list;
+  }, []);
   // stable reference so the wall never rebuilds/restarts on lightbox open/close
-  const items = useMemo(() => PROJECTS.map((p, i) => ({ image: p.wall, title: p.title, index: i })), []);
+  const items = useMemo(() => wallProjects.map((p, i) => ({ image: p.wall, title: p.title, index: i })), [wallProjects]);
   const [openIndex, setOpenIndex] = useState(-1);
   const open = useCallback((i) => setOpenIndex(i), []);
   const close = useCallback(() => setOpenIndex(-1), []);
   const prev = useCallback(() => setOpenIndex((i) => (i > 0 ? i - 1 : i)), []);
-  const next = useCallback(() => setOpenIndex((i) => (i < PROJECTS.length - 1 ? i + 1 : i)), []);
-  const current = openIndex >= 0 ? PROJECTS[openIndex] : null;
+  const next = useCallback(() => setOpenIndex((i) => (i < wallProjects.length - 1 ? i + 1 : i)), [wallProjects.length]);
+  const current = openIndex >= 0 ? wallProjects[openIndex] : null;
 
   // Fix late image pop-in: lazy-loading keys off an element's layout box, but the
   // tiles move via CSS transform (which lazy-load ignores), so tiles drifting in
@@ -100,7 +114,7 @@ export default function DriftWallSection() {
         <ProjectLightbox
           project={current}
           hasPrev={openIndex > 0}
-          hasNext={openIndex < PROJECTS.length - 1}
+          hasNext={openIndex < wallProjects.length - 1}
           onPrev={prev}
           onNext={next}
           onClose={close}
