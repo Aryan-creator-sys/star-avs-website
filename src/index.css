@@ -218,9 +218,14 @@ body::-webkit-scrollbar {
 @keyframes driftwall-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 @keyframes driftwall-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
 .dw-root { position: absolute; inset: 0; overflow: hidden; }
-.dw-plane { position: absolute; top: 50%; left: 50%; display: flex; transform-style: preserve-3d; will-change: transform; }
-.dw-col { display: flex; flex-direction: column; transform-style: preserve-3d; }
-.dw-track { display: flex; flex-direction: column; transform-style: preserve-3d; will-change: transform; backface-visibility: hidden; }
+/* No preserve-3d: nothing inside has a Z-offset (the only 3D use — the hover pop
+   — was removed), so the wall is a flat tilted plane. The plane's tilt is still
+   projected by `perspective` on .dw-root, so the look is identical, but the
+   columns now drift as cheap 2D compositor layers instead of forcing a full 3D
+   re-composite every frame. The plane's transform is static, so no will-change. */
+.dw-plane { position: absolute; top: 50%; left: 50%; display: flex; }
+.dw-col { display: flex; flex-direction: column; }
+.dw-track { display: flex; flex-direction: column; will-change: transform; backface-visibility: hidden; }
 .dw-root[data-pause="true"]:hover .dw-track { animation-play-state: paused; }
 /* stop animating (no compositing work) when the wall isn't on screen */
 .dw-root[data-inview="false"] .dw-track { animation-play-state: paused; }
